@@ -2,12 +2,21 @@ interface Repo {
   name: string;
   html_url: string;
 }
+interface User {
+  avatar_url: string
+  name: string
+  bio: string
+  followers: number
+  following: number
+  public_repos:number
+}
 const APIURL = 'https://api.github.com/users/';
 const main = document.querySelector<HTMLDivElement>('#main');
 
 const getUser = async (username: string) => {
   const response = await fetch(APIURL + username);
-  const data = await response.json();
+  if (!response.ok) throw new Error(`Error: ${response.status}`);
+  const data: User = await response.json();
   console.log('Response', data);
   const card = `
         <div class="card">
@@ -39,6 +48,7 @@ getUser('joankirui');
 const getRepos = async (username: string) => {
   const repos = document.querySelector<HTMLDivElement>('#repos');
   const response = await fetch(APIURL + username + '/repos');
+  if (!response.ok) throw new Error(`Error: ${response.status}`);
   const data: Repo[] = await response.json();
   console.log(typeof data);
   data.forEach((item) => {
@@ -54,13 +64,11 @@ const getRepos = async (username: string) => {
 
 const formSubmit = () => {
   const searchBox = document.querySelector<HTMLInputElement>('#search');
-  if (searchBox) {
-    if (searchBox.value !== '') {
+    if (searchBox && searchBox.value !== '') {
       getUser(searchBox.value);
       searchBox.value = ''; // This line sets the value of the searchBox input field to an empty string, effectively clearing it after the form submission.
     }
     return false;
-  }
 };
 
 const searchBox = document.querySelector<HTMLInputElement>('#search');
